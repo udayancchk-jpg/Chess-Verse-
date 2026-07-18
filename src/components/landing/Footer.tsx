@@ -3,9 +3,10 @@ import { Trophy } from "lucide-react";
 interface FooterProps {
   onAboutClick: () => void;
   onHomeClick: () => void;
+  onAssessmentClick: () => void;
 }
 
-export default function Footer({ onAboutClick, onHomeClick }: FooterProps) {
+export default function Footer({ onAboutClick, onHomeClick, onAssessmentClick }: FooterProps) {
   return (
     <footer className="py-12 bg-black-rich text-white-soft border-t border-white/5">
       <div className="container mx-auto px-6">
@@ -20,6 +21,7 @@ export default function Footer({ onAboutClick, onHomeClick }: FooterProps) {
           <div className="flex gap-8 text-sm text-muted-foreground">
             <button onClick={onHomeClick} className="hover:text-gold transition-colors">Home</button>
             <button onClick={onAboutClick} className="hover:text-gold transition-colors">About Us</button>
+            <button onClick={onAssessmentClick} className="hover:text-gold transition-colors">AI Assessment</button>
             <a href="#" className="hover:text-gold transition-colors">Privacy Policy</a>
           </div>
 

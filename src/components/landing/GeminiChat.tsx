@@ -6,15 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-// Initialize Gemini API
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
 interface Message {
   role: "user" | "model";
   text: string;
+  isError?: boolean;
 }
 
-export default function GeminiChat() {
+interface GeminiChatProps {
+  onBookTrial: () => void;
+}
+
+export default function GeminiChat({ onBookTrial }: GeminiChatProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [input, setInput] = React.useState("");
   const [messages, setMessages] = React.useState<Message[]>([
@@ -37,18 +39,35 @@ export default function GeminiChat() {
     if (!input.trim() || isLoading) return;
 
     const userMessage = input.trim();
+    const apiKey = process.env.GEMINI_API_KEY;
+    
+    if (!apiKey) {
+      setMessages((prev) => [
+        ...prev,
+        { role: "user", text: userMessage },
+        { 
+          role: "model", 
+          text: "I'm sorry, I'm not properly configured to chat right now. Please check if the Gemini API key is set.",
+          isError: true 
+        }
+      ]);
+      return;
+    }
+
     setInput("");
     setMessages((prev) => [...prev, { role: "user", text: userMessage }]);
     setIsLoading(true);
 
     try {
+      const client = new GoogleGenAI({ apiKey });
+      
       // Prepare history for multi-turn chat
       const history = messages.map((msg) => ({
         role: msg.role,
         parts: [{ text: msg.text }]
       }));
 
-      const chat = ai.chats.create({
+      const chat = client.chats.create({
         model: "gemini-3-flash-preview",
         config: {
           systemInstruction: "You are the Chess Verse Assistant, a helpful and professional expert for a premium offline chess academy for children aged 6-16. Your goal is to help parents understand the benefits of chess (focus, discipline, strategic thinking) and guide them to book a free trial class. Be warm, trustworthy, and confident. Keep responses concise and focused on student outcomes. If asked about booking, mention that trial slots are limited and encourage them to use the booking form on the page.",
@@ -60,13 +79,20 @@ export default function GeminiChat() {
         message: userMessage
       });
 
-      const responseText = result.text || "I'm sorry, I couldn't process that. Please try again.";
-      setMessages((prev) => [...prev, { role: "model", text: responseText }]);
+      if (!result.text) {
+        throw new Error("No response from AI");
+      }
+
+      setMessages((prev) => [...prev, { role: "model", text: result.text }]);
     } catch (error) {
       console.error("Gemini Error:", error);
       setMessages((prev) => [
         ...prev,
-        { role: "model", text: "I'm having a bit of trouble connecting right now. Please try again in a moment." }
+        { 
+          role: "model", 
+          text: "I'm having a bit of trouble connecting to the brain right now. Please try sending your message again or refresh the page.",
+          isError: true 
+        }
       ]);
     } finally {
       setIsLoading(false);
@@ -143,9 +169,26 @@ export default function GeminiChat() {
                     "p-3 rounded-2xl text-sm leading-relaxed",
                     msg.role === "user" 
                       ? "bg-gold text-black-rich font-medium rounded-tr-none" 
-                      : "bg-dark-grey text-white-soft rounded-tl-none border border-white/5"
+                      : msg.isError
+                        ? "bg-red-500/10 text-red-400 border border-red-500/20 rounded-tl-none"
+                        : "bg-dark-grey text-white-soft rounded-tl-none border border-white/5"
                   )}>
                     {msg.text}
+                    {msg.role === "model" && !msg.isError && (
+                      <div className="mt-3 pt-3 border-t border-white/5">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => {
+                            setIsOpen(false);
+                            onBookTrial();
+                          }}
+                          className="w-full border-gold text-gold hover:bg-gold hover:text-black-rich text-xs h-8 rounded-lg"
+                        >
+                          Book a Free Trial
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}

@@ -1,26 +1,29 @@
 import { motion, useScroll, useSpring } from "motion/react";
-import { Trophy } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Trophy, MoreVertical, Star, Info, Home, Calendar } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 interface NavbarProps {
   onAboutClick: () => void;
   onHomeClick: () => void;
+  onAssessmentClick: () => void;
+  onBookTrial: () => void;
 }
 
-export default function Navbar({ onAboutClick, onHomeClick }: NavbarProps) {
+export default function Navbar({ onAboutClick, onHomeClick, onAssessmentClick, onBookTrial }: NavbarProps) {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
     damping: 30,
     restDelta: 0.001
   });
-
-  const scrollToBooking = () => {
-    onHomeClick();
-    setTimeout(() => {
-      document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
-  };
 
   return (
     <>
@@ -37,19 +40,59 @@ export default function Navbar({ onAboutClick, onHomeClick }: NavbarProps) {
             <span className="text-lg font-heading font-bold tracking-tighter text-white-soft uppercase">CHESS VERSE</span>
           </button>
 
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white-soft/80">
-            <button onClick={onHomeClick} className="hover:text-gold transition-colors">Home</button>
-            <button onClick={onAboutClick} className="hover:text-gold transition-colors">About Us</button>
-            <a href="#booking" onClick={(e) => { e.preventDefault(); scrollToBooking(); }} className="hover:text-gold transition-colors">Book Trial</a>
-          </div>
+          <div className="flex items-center gap-3">
+            <Button 
+              size="sm" 
+              className="hidden sm:flex bg-gold hover:bg-gold/90 text-black-rich font-bold rounded-full px-6"
+              onClick={onBookTrial}
+            >
+              Book Free Trial
+            </Button>
 
-          <Button 
-            size="sm" 
-            className="bg-gold hover:bg-gold/90 text-black-rich font-bold rounded-full px-6"
-            onClick={scrollToBooking}
-          >
-            Book Free Trial
-          </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger className={cn(
+                buttonVariants({ variant: "ghost", size: "icon" }),
+                "text-white-soft hover:bg-white/10 rounded-full h-10 w-10 flex items-center justify-center"
+              )}>
+                <MoreVertical className="h-6 w-6" />
+                <span className="sr-only">Open menu</span>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-dark-grey border-white/10 text-white-soft rounded-2xl shadow-2xl p-2 z-[60]">
+                <DropdownMenuItem 
+                  onClick={onHomeClick}
+                  className="rounded-xl focus:bg-gold focus:text-black-rich gap-3 py-3 cursor-pointer"
+                >
+                  <Home className="h-4 w-4" />
+                  <span className="font-medium">Home</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={onAboutClick}
+                  className="rounded-xl focus:bg-gold focus:text-black-rich gap-3 py-3 cursor-pointer"
+                >
+                  <Info className="h-4 w-4" />
+                  <span className="font-medium">About Us</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={onAssessmentClick}
+                  className="rounded-xl focus:bg-gold focus:text-black-rich gap-3 py-3 cursor-pointer"
+                >
+                  <Star className="h-4 w-4" />
+                  <div className="flex flex-col">
+                    <span className="font-medium">Personalized AI</span>
+                    <span className="text-[10px] opacity-70">Strategic Assessment</span>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-white/5 my-2" />
+                <DropdownMenuItem 
+                  onClick={onBookTrial}
+                  className="rounded-xl focus:bg-gold focus:text-black-rich gap-3 py-3 cursor-pointer"
+                >
+                  <Calendar className="h-4 w-4" />
+                  <span className="font-medium">Book Free Trial</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </nav>
     </>

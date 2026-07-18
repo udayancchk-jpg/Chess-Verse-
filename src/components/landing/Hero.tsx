@@ -2,7 +2,11 @@ import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Trophy, Users, Star } from "lucide-react";
 
-export default function Hero() {
+interface HeroProps {
+  onAssessmentClick: () => void;
+}
+
+export default function Hero({ onAssessmentClick }: HeroProps) {
   const scrollToBooking = () => {
     document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" });
   };
@@ -51,7 +55,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8"
           >
             <Button 
               size="lg" 
@@ -63,11 +67,19 @@ export default function Hero() {
             <Button 
               size="lg" 
               variant="outline" 
-              className="border-gold text-gold hover:bg-gold hover:text-black-rich font-bold px-8 py-6 text-lg rounded-full w-full sm:w-auto transition-all"
+              className="border-gold text-gold hover:bg-gold hover:text-black-rich font-bold px-8 py-6 text-lg rounded-full w-full sm:w-auto transition-all shadow-[0_0_20px_rgba(212,175,55,0.2)]"
+              onClick={onAssessmentClick}
+            >
+              Free AI Assessment
+            </Button>
+            <Button 
+              size="lg" 
+              variant="ghost" 
+              className="text-white-soft/60 hover:text-gold transition-colors font-bold px-8 py-6 text-lg rounded-full w-full sm:w-auto"
               onClick={() => window.open("https://wa.me/918787804554", "_blank")}
             >
               <MessageCircle className="mr-2 h-5 w-5" />
-              Chat on WhatsApp
+              WhatsApp Help
             </Button>
           </motion.div>
 

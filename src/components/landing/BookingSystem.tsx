@@ -34,6 +34,7 @@ export default function BookingSystem({ onSuccess }: BookingSystemProps) {
   const [level, setLevel] = React.useState<string>();
   const [isSubmitted, setIsSubmitted] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -42,6 +43,7 @@ export default function BookingSystem({ onSuccess }: BookingSystemProps) {
     }
 
     setIsLoading(true);
+    setError(null);
 
     const formData = new FormData(e.currentTarget);
     formData.append("date", format(date, "PPP"));
@@ -66,17 +68,19 @@ export default function BookingSystem({ onSuccess }: BookingSystemProps) {
           });
         }
       } else {
-        console.error("Form submission failed");
+        const data = await response.json();
+        setError(data.errors?.[0]?.message || "Something went wrong. Please try again later.");
       }
-    } catch (error) {
-      console.error("Error submitting form:", error);
+    } catch (err) {
+      setError("Network error. Please check your connection and try again.");
+      console.error("Error submitting form:", err);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <section id="booking" className="py-24 bg-white-soft text-black-rich">
+    <section id="booking" className="py-24 bg-white-soft text-black-rich scroll-mt-20">
       <div className="container mx-auto px-6">
         <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden border border-border flex flex-col lg:flex-row">
           
@@ -222,6 +226,17 @@ export default function BookingSystem({ onSuccess }: BookingSystemProps) {
                       </div>
                     </div>
                   </div>
+
+                  {error && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-red-50 border border-red-200 p-4 rounded-xl flex items-center gap-3 text-red-600 text-sm"
+                    >
+                      <AlertCircle className="h-5 w-5 shrink-0" />
+                      <p>{error}</p>
+                    </motion.div>
+                  )}
 
                   <Button 
                     type="submit" 

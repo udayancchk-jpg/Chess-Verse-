@@ -20,9 +20,10 @@ import WhatsAppButton from "@/components/landing/WhatsAppButton";
 import ThankYouPage from "@/components/landing/ThankYouPage";
 import AboutPage from "@/components/landing/AboutPage";
 import GeminiChat from "@/components/landing/GeminiChat";
+import AssessmentPage from "@/components/landing/AssessmentPage";
 
 export default function App() {
-  const [view, setView] = React.useState<"home" | "about" | "thank-you">("home");
+  const [view, setView] = React.useState<"home" | "about" | "thank-you" | "assessment">("home");
   const [bookingDetails, setBookingDetails] = React.useState<{ date: string; time: string }>();
 
   const handleBookingSuccess = (details: { date: string; time: string }) => {
@@ -41,6 +42,11 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const navigateToAssessment = () => {
+    setView("assessment");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const scrollToBooking = () => {
     if (view !== "home") {
       setView("home");
@@ -56,9 +62,14 @@ export default function App() {
     <div className="min-h-screen bg-background font-sans selection:bg-gold selection:text-black-rich">
       {view === "home" && (
         <>
-          <Navbar onAboutClick={navigateToAbout} onHomeClick={navigateToHome} />
+          <Navbar 
+            onAboutClick={navigateToAbout} 
+            onHomeClick={navigateToHome} 
+            onAssessmentClick={navigateToAssessment}
+            onBookTrial={scrollToBooking} 
+          />
           <main>
-            <Hero />
+            <Hero onAssessmentClick={navigateToAssessment} />
             <Problem />
             <Benefits />
             <Results />
@@ -69,12 +80,23 @@ export default function App() {
             <BookingSystem onSuccess={handleBookingSuccess} />
             <FinalCTA />
           </main>
-          <Footer onAboutClick={navigateToAbout} onHomeClick={navigateToHome} />
+          <Footer 
+            onAboutClick={navigateToAbout} 
+            onHomeClick={navigateToHome} 
+            onAssessmentClick={navigateToAssessment} 
+          />
         </>
       )}
 
       {view === "about" && (
         <AboutPage 
+          onBookTrial={scrollToBooking} 
+          onBackToHome={navigateToHome} 
+        />
+      )}
+
+      {view === "assessment" && (
+        <AssessmentPage 
           onBookTrial={scrollToBooking} 
           onBackToHome={navigateToHome} 
         />
@@ -88,7 +110,7 @@ export default function App() {
       )}
 
       <WhatsAppButton />
-      <GeminiChat />
+      <GeminiChat onBookTrial={scrollToBooking} />
       
       {/* Sticky Mobile CTA */}
       {view === "home" && (
